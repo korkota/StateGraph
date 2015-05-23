@@ -13,8 +13,15 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    state.cpp \
+    stategraph.cpp \
+    testclass.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    state.h \
+    stategraph.h \
+    simplelogger.h \
+    testclass.h
 
 FORMS    += mainwindow.ui
