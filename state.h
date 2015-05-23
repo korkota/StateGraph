@@ -6,6 +6,7 @@ namespace States {
 
     template <class V>
     class StateGraph;
+
     template <class T>
     class State
     {
@@ -19,15 +20,38 @@ namespace States {
         }
 
     public:
-        T getData();
-        void setData(T data);
+
+
+        T getData(){
+            return data;
+        }
+        void setData(T data){
+
+        }
 
      //   Iterator getConnectedNodes();
-        State<T>& operator = (State<T> other);
-        State();
-        State(T data);
-        State(State<T> &state);
-        ~State();
+        State<T>& operator = (State<T> other){
+            swap(other);
+            return *this;
+        }
+
+        State(){
+
+        }
+
+
+
+        State(State<T> &state){
+            this->data = state.data;
+        }
+
+        State(T data){
+            this->data = data;
+        }
+
+        ~State(){
+
+        }
     };
 }
 #endif // STATE_H

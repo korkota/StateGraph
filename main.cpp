@@ -20,11 +20,12 @@ int main(int argc, char *argv[])
     graph.addState(s3);
     graph.addState(s4);
     graph.addState(s5);
+    graph.addConnection(0,1);
     graph.addConnection(1,2);
-    graph.addConnection(2,3);
+    graph.addConnection(1,3);
     graph.addConnection(2,4);
-    graph.addConnection(3,5);
-    graph.addConnection(4,5);
+    graph.addConnection(3,4);
+    graph.removeState(3);
     std::vector<char> test;
     test.push_back('0');
     test.push_back('1');

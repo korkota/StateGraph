@@ -29,7 +29,10 @@ namespace States {
                     }
                     if(*itr > edge)
                         connections[i][j] = *itr - 1;
+                    j++;
                 }
+                if(delInd != -1)
+                    connections[i].erase(connections[i].begin() + delInd);
             }
         }
 
@@ -53,6 +56,7 @@ namespace States {
         void addState(State<T> &newState){
             states.push_back(&newState);
             connections.push_back(*(new std::vector<int>()));
+            statesAmount++;
         }
 
 
@@ -61,7 +65,7 @@ namespace States {
         }
 
         void addConnection(int srcIndex, int dstIndex){
-            if(srcIndex>=0 && srcIndex<0 && dstIndex>=0 && dstIndex<0)
+            if(srcIndex>=0 && srcIndex<statesAmount && dstIndex>=0 && dstIndex<statesAmount)
                 connections[srcIndex].push_back(dstIndex);
         }
 
@@ -80,8 +84,12 @@ namespace States {
       //Iterator getConnections(int stateIndex);
       //Iterator getConnections(State<T> &state);
 
-        StateGraph();
-        ~StateGraph();
+        StateGraph(){
+            statesAmount = 0;
+        }
+        ~StateGraph(){
+
+        }
     };
 }
 #endif // STATEGRAPH_H
