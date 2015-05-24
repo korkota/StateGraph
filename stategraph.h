@@ -4,9 +4,13 @@
 #include <vector>
 #include <state.h>
 #include <iterator>
+#include <stateiterator.h>
 namespace States {
     template <class V>
     class State;
+
+    template <class D>
+    class StateIterator;
 
     template <class T>
     class StateGraph
@@ -52,6 +56,27 @@ namespace States {
         }
 
     public:
+        typedef StateIterator<T> iterator ;
+        void setInitialState(State<T> &newState)
+        {
+            if(findIndex(&newState) == -1 )
+                addState(newState);
+            initialS = &newState;
+        }
+
+        void setFinalState(State<T> &newState){
+            if(findIndex(&newState) == -1 )
+                addState(newState);
+            finalS = &newState;
+        }
+
+        bool isInitialState(State<T> &state){
+            return *state==initialS ? true : false;
+        }
+
+        bool isFinalState(State<T> &state){
+            return *state==finalS ? true : false;
+        }
 
         void addState(State<T> &newState){
             states.push_back(&newState);
@@ -61,7 +86,7 @@ namespace States {
 
 
         void addConnection(State<T> &source, State<T> &destination){
-            addConnection(findIndex(*source),findIndex(*destination));
+            addConnection(findIndex(&source),findIndex(&destination));
         }
 
         void addConnection(int srcIndex, int dstIndex){
@@ -70,7 +95,7 @@ namespace States {
         }
 
         void removeState(State<T> &state){
-            removeState(findIndex(*state));
+            removeState(findIndex(&state));
         }
 
         void removeState(int stateIndex){
@@ -81,6 +106,13 @@ namespace States {
             }
 
         }
+
+        iterator begin(){
+            StateIterator<T> iter(states);
+            return iter;
+
+        }
+
       //Iterator getConnections(int stateIndex);
       //Iterator getConnections(State<T> &state);
 

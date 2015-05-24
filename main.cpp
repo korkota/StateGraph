@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
     graph.addConnection(1,3);
     graph.addConnection(2,4);
     graph.addConnection(3,4);
+ //   States::StateIterator<int> iter();
     graph.removeState(3);
     std::vector<char> test;
     test.push_back('0');

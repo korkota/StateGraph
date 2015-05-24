@@ -26,7 +26,7 @@ namespace States {
             return data;
         }
         void setData(T data){
-
+            this->data = data;
         }
 
      //   Iterator getConnectedNodes();
