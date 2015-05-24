@@ -34,12 +34,16 @@ public:
     StateIterator  operator ++(int); // постфиксная инкремент
 
     // операторы обращения
-    reference operator *();
+    pointer operator *();
     pointer operator ->();
 
     // операторы сравнения
     bool operator ==(const StateIterator &);
     bool operator !=(const StateIterator &);
+
+    bool isEnd(){
+        return index == data.size()? true : false;
+    }
 
 
 };
@@ -53,7 +57,6 @@ StateIterator<T>::StateIterator(){
 template <class T>
 StateIterator<T>::StateIterator(std::vector<State<T>* > data, int index){
     this->data = data;
-    data[0]->setData(-1);
     this->index = index;
 
 }
@@ -90,8 +93,8 @@ StateIterator<T>  StateIterator<T>::operator ++(int){// постфиксная �
 
 // операторы обращения
 template <class T>
-State<T>& StateIterator<T>::operator *(){
-    return *data[index];
+State<T>* StateIterator<T>::operator *(){
+    return data[index];
 }
 
 template <class T>

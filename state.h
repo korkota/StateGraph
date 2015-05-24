@@ -12,9 +12,8 @@ namespace States {
     {
     private:
 
-        std::vector< State<T> > connections;
         T data;
-        StateGraph<T> innerGraph;
+        StateGraph<T>* innerGraph;
         void swap(State<T> & other){
             std::swap(data,other.data);
         }
@@ -28,6 +27,15 @@ namespace States {
         void setData(T data){
             this->data = data;
         }
+
+        void setInnerGraph(StateGraph<T>* graph){
+            innerGraph = graph;
+        }
+
+        StateGraph<T>* getInnerGraph(){
+            return innerGraph;
+        }
+
 
      //   Iterator getConnectedNodes();
         State<T>& operator = (State<T> other){
