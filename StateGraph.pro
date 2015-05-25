@@ -17,13 +17,15 @@ SOURCES += main.cpp\
     state.cpp \
     stategraph.cpp \
     testclass.cpp \
-    stateiterator.cpp
+    stateiterator.cpp \
+    superstate.cpp
 
 HEADERS  += mainwindow.h \
     state.h \
     stategraph.h \
     simplelogger.h \
     testclass.h \
-    stateiterator.h
+    stateiterator.h \
+    superstate.h
 
 FORMS    += mainwindow.ui

@@ -6,6 +6,12 @@
 #include <state.h>
 #include <stategraph.h>
 namespace States {
+template <class V>
+class State;
+
+template <class N>
+class StateGraph;
+
 template <class T>
 class StateIterator
 {

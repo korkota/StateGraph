@@ -2,6 +2,7 @@
 #define STATE_H
 #include <vector>
 #include <stategraph.h>
+#include <QString>
 namespace States {
 
     template <class V>
@@ -10,10 +11,12 @@ namespace States {
     template <class T>
     class State
     {
-    private:
+        friend class StateGraph<T>;
+    protected:
 
         T data;
-        StateGraph<T>* innerGraph;
+        bool marked;
+
         void swap(State<T> & other){
             std::swap(data,other.data);
         }
@@ -28,12 +31,9 @@ namespace States {
             this->data = data;
         }
 
-        void setInnerGraph(StateGraph<T>* graph){
-            innerGraph = graph;
-        }
 
-        StateGraph<T>* getInnerGraph(){
-            return innerGraph;
+        virtual QString toString(){
+            return "State";
         }
 
 
@@ -44,17 +44,19 @@ namespace States {
         }
 
         State(){
-
+            marked = false;
         }
 
 
 
         State(State<T> &state){
             this->data = state.data;
+            marked = false;
         }
 
         State(T data){
             this->data = data;
+            marked = false;
         }
 
         ~State(){

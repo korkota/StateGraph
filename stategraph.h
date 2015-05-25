@@ -23,6 +23,10 @@ namespace States {
         std::vector< std::vector<int> > connections;
         int statesAmount;
 
+        State<T>* src;
+        State<T>* dst;
+        std::vector< State<T>* > accum;
+
         void restoreConnections(int edge){
             for(int i=0; i<connections.size(); i++){
                 int j=0,delInd=-1;
@@ -53,6 +57,33 @@ namespace States {
             if(index < statesAmount)
                 return states[index];
             return 0;
+        }
+
+        bool tracing(int state){
+            State<T>* stt = findState(state);
+            State<T>* tempS;
+            bool res = false;
+            stt->marked = true;
+            for(std::vector<int>::iterator i = connections[state].begin(); i < connections[state].end(); ++i){
+                tempS = findState(*i);
+                if(tempS == dst){
+                    accum.push_back(tempS);
+                    res = true;
+                    break;
+                }
+                if(tempS->marked)
+                    continue;
+                else{
+                    if(tracing(*i)){
+                        accum.push_back(tempS);
+                        res = true;
+                        break;
+                    }
+                }
+            }
+            stt->marked = false;
+            return res;
+
         }
 
     public:
@@ -94,6 +125,8 @@ namespace States {
                 connections[srcIndex].push_back(dstIndex);
         }
 
+
+
         void removeState(State<T>* state){
             removeState(findIndex(state));
         }
@@ -103,8 +136,27 @@ namespace States {
                 states.erase(states.begin() + stateIndex);
                 connections.erase(connections.begin() + stateIndex);
                 restoreConnections(stateIndex);
+                statesAmount--;
             }
 
+        }
+
+        void removeConnection(State<T>* source, State<T>* destination){
+            removeConnection(findIndex(source),findIndex(destination));
+        }
+
+        void removeConnection(int source, int destination){
+            if(!(source>=0 && source<statesAmount && destination>=0 && destination<statesAmount))
+                return;
+            int toDel = -1;
+            for(int i = 0 ;  i < connections[source].size(); i++){
+                if(connections[source][i] == destination){
+                    toDel = i;
+                    break;
+                }
+            }
+            if(toDel != -1)
+                connections[source].erase(connections[source].begin() + toDel);
         }
 
         iterator begin(){
@@ -126,23 +178,25 @@ namespace States {
             return data;
         }
 
-        void removeConnection(State<T>* source, State<T>* destination){
-            removeConnection(findIndex(source),findIndex(destination));
+        iterator findPath(State<T>* source, State<T>* destination){
+            std::vector<State<T>* > path;
+            src = source;
+            dst = destination;
+            StateIterator<int>* itr;
+            int srcI = findIndex(src), dstI = findIndex(dst);
+            if(!(srcI>=0 && srcI<statesAmount && dstI>=0 && dstI<statesAmount))
+                return path;
+            path.clear();
+            if(tracing(srcI)){
+                accum.push_back(src);
+                for(int i = accum.size() - 1; i>=0; i--)
+                    path.push_back(accum[i]);
+            }
+            StateIterator<T> iter(path);
+            return iter;
         }
 
-        void removeConnection(int source, int destination){
-            if(!(source>=0 && source<statesAmount && destination>=0 && destination<statesAmount))
-                return;
-            int toDel = -1;
-            for(int i = 0 ;  i < connections[source].size(); i++){
-                if(connections[source][i] == destination){
-                    toDel = i;
-                    break;
-                }
-            }
-            if(toDel != -1)
-                connections[source].erase(connections[source].begin() + toDel);
-        }
+
 
         StateGraph(){
             statesAmount = 0;
