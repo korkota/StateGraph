@@ -11,6 +11,7 @@ class SuperState : public State<T>
 {
 
     StateGraph<T> * innerGraph;
+
 public:
 
     void setInnerGraph(StateGraph<T>* graph){
@@ -25,6 +26,28 @@ public:
         return "SuperState";
     }
 
+    QString serialize(){
+        QDomNode el = serializeToDom();
+        QDomDocument doc = el.toDocument();
+        return doc.toString() ;
+
+    }
+
+    QDomNode serializeToDom(){
+        QDomDocument doc = State<T>::serializeToDom().toDocument();
+        doc.firstChildElement().setTagName("SuperState");
+        QDomElement node2 = doc.createElement("Graph");
+        QDomNode graphNode;
+        if(innerGraph!= 0){
+            graphNode = innerGraph->serializeToDom();
+            node2.appendChild(graphNode);
+        }
+        else
+            node2.appendChild(doc.createTextNode("0"));
+        doc.firstChildElement().appendChild(node2);
+        return doc;
+    }
+
     SuperState(){
         innerGraph = 0;
     }
@@ -35,6 +58,7 @@ public:
 
     SuperState(SuperState<T> &ss): State<T>(ss){
         innerGraph = 0;
+
     }
 
     SuperState<T>& operator = (State<T> other){
@@ -43,6 +67,8 @@ public:
     }
 
     ~SuperState();
+
+
 };
 }
 #endif // SUPERSTATE_H

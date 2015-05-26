@@ -5,6 +5,13 @@
 #include <state.h>
 #include <iterator>
 #include <stateiterator.h>
+#include <stateexception.h>
+#include <unknownstateexception.h>
+#include <wrongindexstateexception.h>
+#include "QDomDocument"
+#include "QDomNode"
+#include "QDomElement"
+#include "QDomText"
 namespace States {
     template <class V>
     class State;
@@ -50,12 +57,15 @@ namespace States {
                 if(state==states[i])
                     return i;
             }
+            throw UnknownStateException();
             return -1;
         }
 
         State<T>* findState(int index){
             if(index < statesAmount)
                 return states[index];
+            else
+                throw WrongIndexStateException();
             return 0;
         }
 
@@ -83,6 +93,21 @@ namespace States {
             }
             stt->marked = false;
             return res;
+
+        }
+
+        QDomNode connectionDom(int source, int destination){
+            QString temp;
+            QDomDocument doc("");
+            QDomElement conn = doc.createElement("Connection");
+            QDomElement srcDom = doc.createElement("Source");
+            QDomElement dstDom = doc.createElement("Destination");
+            srcDom.appendChild(doc.createTextNode(temp.setNum(source)));
+            dstDom.appendChild(doc.createTextNode(temp.setNum(destination)));
+            conn.appendChild(srcDom);
+            conn.appendChild(dstDom);
+            doc.appendChild(conn);
+            return doc;
 
         }
 
@@ -123,6 +148,8 @@ namespace States {
         void addConnection(int srcIndex, int dstIndex){
             if(srcIndex>=0 && srcIndex<statesAmount && dstIndex>=0 && dstIndex<statesAmount)
                 connections[srcIndex].push_back(dstIndex);
+            else
+                throw WrongIndexStateException();
         }
 
 
@@ -138,6 +165,8 @@ namespace States {
                 restoreConnections(stateIndex);
                 statesAmount--;
             }
+            else
+                throw WrongIndexStateException();
 
         }
 
@@ -147,7 +176,7 @@ namespace States {
 
         void removeConnection(int source, int destination){
             if(!(source>=0 && source<statesAmount && destination>=0 && destination<statesAmount))
-                return;
+                throw WrongIndexStateException();
             int toDel = -1;
             for(int i = 0 ;  i < connections[source].size(); i++){
                 if(connections[source][i] == destination){
@@ -177,6 +206,9 @@ namespace States {
             }
             return data;
         }
+        iterator findPath(){
+            return findPath(initialS, finalS);
+        }
 
         iterator findPath(State<T>* source, State<T>* destination){
             std::vector<State<T>* > path;
@@ -203,6 +235,56 @@ namespace States {
         }
         ~StateGraph(){
 
+        }
+
+        QString serialize(){
+            QDomNode el = serializeToDom();
+            QDomDocument doc = el.toDocument();
+            return doc.toString() ;
+
+        }
+
+        QDomNode serializeToDom(){
+            QString temp;
+            QDomDocument doc("");
+            QDomElement head = doc.createElement("StateGraph");
+            QDomElement statesTag = doc.createElement("States");
+            for(int i = 0; i < states.size(); i++){
+                QDomNode newState = states[i]->serializeToDom();
+                statesTag.appendChild(newState);
+            }
+
+            QDomElement connTag = doc.createElement("Connections");
+            for(int i = 0; i < connections.size(); i++){
+                if(connections[i].size() > 0){
+                    for(int j = 0; j < connections[i].size(); j++){
+                        connTag.appendChild(connectionDom(i, connections[i][j]));
+                    }
+                }
+            }
+            QDomElement initTag = doc.createElement("initialState");
+            QDomElement finalTag = doc.createElement("finalState");
+            int tempIn;
+            try{
+                tempIn = findIndex(initialS);
+            }
+            catch(WrongIndexStateException e){
+                tempIn = - 1;
+            }
+            initTag.appendChild(doc.createTextNode(temp.setNum(tempIn)));
+            try{
+                tempIn = findIndex(finalS);
+            }
+            catch(WrongIndexStateException e){
+                tempIn = - 1;
+            }
+            finalTag.appendChild(doc.createTextNode(temp.setNum(tempIn)));
+            head.appendChild(statesTag);
+            head.appendChild(connTag);
+            head.appendChild(initTag);
+            head.appendChild(finalTag);
+            doc.appendChild(head);
+            return doc;
         }
     };
 }

@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets xml
 
 TARGET = StateGraph
 TEMPLATE = app
@@ -18,7 +18,10 @@ SOURCES += main.cpp\
     stategraph.cpp \
     testclass.cpp \
     stateiterator.cpp \
-    superstate.cpp
+    superstate.cpp \
+    stateexception.cpp \
+    wrongindexstateexception.cpp \
+    unknownstateexception.cpp
 
 HEADERS  += mainwindow.h \
     state.h \
@@ -26,6 +29,9 @@ HEADERS  += mainwindow.h \
     simplelogger.h \
     testclass.h \
     stateiterator.h \
-    superstate.h
+    superstate.h \
+    stateexception.h \
+    wrongindexstateexception.h \
+    unknownstateexception.h
 
 FORMS    += mainwindow.ui

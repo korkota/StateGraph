@@ -3,6 +3,10 @@
 #include <vector>
 #include <stategraph.h>
 #include <QString>
+#include "QDomDocument"
+#include "QDomNode"
+#include "QDomElement"
+#include "QDomText"
 namespace States {
 
     template <class V>
@@ -61,6 +65,25 @@ namespace States {
 
         ~State(){
 
+        }
+
+        virtual QString serialize(){
+            QDomNode el = serializeToDom();
+            QDomDocument doc = el.toDocument();
+            return doc.toString() ;
+
+        }
+
+        virtual QDomNode serializeToDom(){
+            QString temp;
+            QDomDocument doc("");
+            QDomElement head = doc.createElement("State");
+            QDomElement node1 = doc.createElement("data");
+            QDomNode elem = data.serializeToDom();
+            node1.appendChild(elem);
+            head.appendChild(node1);
+            doc.appendChild(head);
+            return doc;
         }
     };
 }
