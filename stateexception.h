@@ -15,9 +15,9 @@ public:
 
     StateException() ;
     StateException(const StateException&);
-    StateException& operator= (const StateException&) ;
+    StateException& operator= (const StateException&);
     virtual ~StateException() throw();
-    virtual const char* what() const throw() ;
+    virtual const char* what() const throw();
     static StateException* getLastException();
 };
 }
