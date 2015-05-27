@@ -2,6 +2,7 @@
 #define STATE_H
 #include <vector>
 #include <stategraph.h>
+
 #include <QString>
 #include "QDomDocument"
 #include "QDomNode"
@@ -85,6 +86,27 @@ namespace States {
             doc.appendChild(head);
             return doc;
         }
+
+        virtual void deserialize(QString data){
+            QDomDocument doc;
+            doc.setContent(data);
+            deserializeFromDom(doc);
+        }
+
+        virtual void deserializeFromDom(QDomNode node){
+
+            QDomNode head = node;
+            QDomNode temp;
+            if(head.nodeName() == "State" ){
+                temp = head.firstChild();
+                if( temp.nodeName() == "data"){
+                    T dataN;
+                    dataN.deserializeFromDom(temp.firstChild());
+                    data = dataN;
+                }
+            }
+        }
+
     };
 }
 #endif // STATE_H

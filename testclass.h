@@ -38,6 +38,28 @@ public:
         return doc;
     }
 
+    void deserialize(QString data){
+        QDomDocument doc;
+        doc.setContent(data);
+        deserializeFromDom(doc);
+    }
+
+    void deserializeFromDom(QDomNode node){
+        QDomNode head = node;
+        QDomNode temp;
+        if(head.nodeName() == "testClass"){
+            temp = head.firstChild();
+            if( temp.nodeName() == "testData"){
+                QString text = temp.firstChild().toText().data();
+                testData = text.toInt();
+            }
+            temp = temp.nextSibling();
+            if( temp.nodeName() == "testString"){
+               testString = temp.firstChild().toText().data();
+            }
+        }
+    }
+
     testClass();
     testClass(QString str, int data = 0){
         testString = str;

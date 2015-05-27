@@ -4,7 +4,18 @@
 #include <state.h>
 #include <stategraph.h>
 #include <QString>
+#include "QDomDocument"
+#include "QDomNode"
+#include "QDomElement"
+#include "QDomText"
+
 namespace States {
+
+template <class V>
+class StateGraph;
+
+template <class C>
+class State;
 
 template <class T>
 class SuperState : public State<T>
@@ -68,6 +79,38 @@ public:
 
     ~SuperState();
 
+
+    void deserialize(QString data){
+        QDomDocument doc;
+        doc.setContent(data);
+        deserializeFromDom(doc);
+    }
+
+    void deserializeFromDom(QDomNode node){
+        QDomNode head = node;
+        QDomNode temp;
+        if(head.nodeName() == "SuperState" ){
+            temp = head.firstChild();
+            if( temp.nodeName() == "data"){
+                T dataN;
+                dataN.deserializeFromDom(temp.firstChild());
+                State<T>::setData(dataN);
+            }
+            temp = temp.nextSiblingElement();
+            if( temp.nodeName() == "Graph"){
+                QDomNode node = temp.firstChild();
+                if(node.isText()){
+                    innerGraph == NULL;
+                }
+                else
+                {
+                    StateGraph<T>* graph = new StateGraph<T>();
+                    graph->deserializeFromDom(node);
+                    innerGraph = graph;
+                }
+            }
+        }
+    }
 
 };
 }

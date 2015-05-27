@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <state.h>
+#include <superstate.h>
 #include <iterator>
 #include <stateiterator.h>
 #include <stateexception.h>
@@ -12,9 +13,14 @@
 #include "QDomNode"
 #include "QDomElement"
 #include "QDomText"
+#include "QFile"
+#include "QTextStream"
 namespace States {
     template <class V>
     class State;
+
+    template <class V>
+    class SuperState;
 
     template <class D>
     class StateIterator;
@@ -109,6 +115,21 @@ namespace States {
             doc.appendChild(conn);
             return doc;
 
+        }
+
+        State<T>* newStateGen(QDomNode node){
+            QDomNode temp;
+            if(node.nodeName() == "State"){
+                State<T>* s = new State<T>();
+                s->deserializeFromDom(node);
+                return s;
+            }
+            if(node.nodeName() == "SuperState"){
+                State<T>* s = new SuperState<T>();
+                s->deserializeFromDom(node);
+                return s;
+            }
+            return NULL;
         }
 
     public:
@@ -285,6 +306,73 @@ namespace States {
             head.appendChild(finalTag);
             doc.appendChild(head);
             return doc;
+        }
+        void deserializeFromFile(QString file){
+            QFile* inFile = new QFile(file);
+            QString data;
+            if(inFile->open(QIODevice::ReadOnly)){
+                QTextStream in(inFile);
+                data = in.readAll();
+                inFile->close();
+                deserialize(data);
+            }
+        }
+
+        void deserialize(QString data){
+            statesAmount = 0;
+            states.clear();
+            connections.clear();
+            QDomDocument doc;
+            doc.setContent(data);
+            deserializeFromDom(doc.firstChild());
+        }
+
+        void deserializeFromDom(QDomNode node){
+            statesAmount = 0;
+            states.clear();
+            connections.clear();
+            QDomNode head = node;
+            QDomNode temp;
+            if(head.nodeName() == "StateGraph"){
+                temp = head.firstChild();
+                if(temp.nodeName() == "States"){
+                    QDomNodeList l = temp.childNodes();
+                    for(int i = 0; i<l.length();i++){
+                        QDomNode node = l.at(i);
+                        State<T>* tempS = newStateGen(node);
+                        if(tempS)
+                            addState(tempS);
+                    }
+                }
+                temp = temp.nextSiblingElement();
+                if(temp.nodeName() == "Connections"){
+                    QDomNodeList l = temp.childNodes();
+                    for(int i = 0; i<l.length();i++){
+                        QDomNode node = l.at(i);
+                        if(node.nodeName() == "Connection"){
+                            QDomNode tempSrc = node.firstChild();
+                            QDomNode tempDst = node.lastChild();
+                            if(tempSrc.nodeName() == "Source" && tempDst.nodeName() == "Destination" ){
+                                int t1 = tempSrc.firstChild().toText().data().toInt();
+                                int t2 = tempDst.firstChild().toText().data().toInt();
+                                connections[t1].push_back(t2);
+                            }
+                        }
+                    }
+                }
+                temp = temp.nextSiblingElement();
+                if( temp.nodeName() == "initialState"){
+                    int t1 = temp.firstChild().toText().data().toInt();
+                    if(t1 >= 0 && t1 < statesAmount)
+                        initialS = findState(t1);
+                }
+                temp = temp.nextSiblingElement();
+                if( temp.nodeName() == "finalState"){
+                    int t1 = temp.firstChild().toText().data().toInt();
+                    if(t1 >= 0 && t1 < statesAmount)
+                        finalS = findState(t1);
+                }
+            }
         }
     };
 }
